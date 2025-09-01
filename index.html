@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse du Rapport de Stage - Tom Jondeau</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f9f9f9 0%, #e8f1f5 100%);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        .floating-nav {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: fadeInUp 0.5s forwards;
+        }
+
+        .nav-btn:nth-child(1) { animation-delay: 0.2s; }
+        .nav-btn:nth-child(2) { animation-delay: 0.3s; }
+        .nav-btn:nth-child(3) { animation-delay: 0.4s; }
+
+        .nav-btn:hover {
+            transform: translateY(-5px);
+            background: var(--secondary-color);
+        }
+
+        .nav-tooltip {
+            position: absolute;
+            right: 60px;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .nav-btn:hover .nav-tooltip {
+            opacity: 1;
+            right: 65px;
+        }
+
+        /* Header avec animation */
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1a2530 100%);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ffffff' fill-opacity='0.05' d='M0,128L48,117.3C96,107,192,85,288,112C384,139,480,213,576,218.7C672,224,768,160,864,138.7C960,117,1056,139,1152,149.3C1248,160,1344,160,1392,160L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+            background-position: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.8rem;
+            font-weight: 700;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s forwards 0.2s;
+        }
+
+        header p {
+            margin: 1rem 0 0;
+            font-size: 1.2rem;
+            opacity: 0.9;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s forwards 0.4s;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 2rem;
+            animation: bounce 2s infinite;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Cards modernes */
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            margin-bottom: 3rem;
+            overflow: hidden;
+            transition: var(--transition);
+            transform: translateY(30px);
+            opacity: 0;
+        }
+
+        .card.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header {
+            background: linear-gradient(90deg, var(--secondary-color) 0%, #2980b9 100%);
+            color: white;
+            padding: 1.2rem 1.8rem;
+            font-size: 1.6rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .card-header i {
+            transition: var(--transition);
+        }
+
+        .card-header.collapsed i {
+            transform: rotate(180deg);
+        }
+
+        .card-body {
+            padding: 2rem;
+            transition: var(--transition);
+        }
+
+        .card-body.collapsed {
+            display: none;
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-top: 0;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid var(--light-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+        }
+
+        .highlight {
+            background-color: var(--light-color);
+            padding: 1rem 1.5rem;
+            border-left: 4px solid var(--secondary-color);
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .success-box {
+            background-color: rgba(39, 174, 96, 0.1);
+            border-left: 4px solid var(--success-color);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning-box {
+            background-color: rgba(243, 156, 18, 0.1);
+            border-left: 4px solid var(--warning-color);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .critique-box {
+            background-color: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid var(--accent-color);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .score-container:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .score {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--success-color);
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            font-weight: 500;
+            flex: 1;
+            padding: 0 1rem;
+        }
+
+        .score-description {
+            flex: 2;
+            padding-left: 1rem;
+            color: #555;
+            border-left: 1px solid #eee;
+        }
+
+        ul {
+            padding-left: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        li {
+            margin-bottom: 0.8rem;
+            position: relative;
+        }
+
+        li::before {
+            content: "•";
+            color: var(--secondary-color);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary-color) 0%, #2980b9 100%);
+            border-radius: 4px;
+            width: 0;
+            transition: width 1.5s ease-in-out;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+
+        footer {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1a2530 100%);
+            color: white;
+            text-align: center;
+            padding: 2.5rem 0;
+            margin-top: 3rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0) translateX(-50%);
+            }
+            40% {
+                transform: translateY(-20px) translateX(-50%);
+            }
+            60% {
+                transform: translateY(-10px) translateX(-50%);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .score-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .score {
+                margin-bottom: 0.5rem;
+            }
+
+            .score-description {
+                padding-left: 0;
+                border-left: none;
+                margin-top: 0.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 2.2rem;
+            }
+
+            header p {
+                font-size: 1rem;
+            }
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            background-color: var(--secondary-color);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -3px;
+            border-radius: 10px;
+        }
+
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+            margin: 1rem 0;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .timeline-item:nth-child(odd) {
+            left: 0;
+        }
+
+        .timeline-item:nth-child(even) {
+            left: 50%;
+        }
+
+        .timeline-content {
+            padding: 20px;
+            background-color: white;
+            position: relative;
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline-content::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            top: 15px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content::after {
+            right: -10px;
+            transform: translateX(50%);
+        }
+
+        .timeline-item:nth-child(even) .timeline-content::after {
+            left: -10px;
+            transform: translateX(-50%);
+        }
+
+        .timeline-date {
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+        }
+
+        @media screen and (max-width: 768px) {
+            .timeline::after {
+                left: 31px;
+            }
+
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+
+            .timeline-item:nth-child(even) {
+                left: 0;
+            }
+
+            .timeline-content::after {
+                left: 15px;
+                transform: translateX(-50%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Analyse du Rapport de Stage</h1>
+        <p>Tom Jondeau - Ingénieur Étude et Commercial chez Etandex</p>
+        <div class="scroll-indicator" onclick="scrollToContent()">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </header>
+
+    <div class="floating-nav">
+        <div class="nav-btn" onclick="scrollToSection('resume')">
+            <i class="fas fa-list"></i>
+            <span class="nav-tooltip">Résumé</span>
+        </div>
+        <div class="nav-btn" onclick="scrollToSection('evaluation')">
+            <i class="fas fa-star"></i>
+            <span class="nav-tooltip">Évaluation</span>
+        </div>
+        <div class="nav-btn" onclick="scrollToSection('critiques')">
+            <i class="fas fa-comments"></i>
+            <span class="nav-tooltip">Critiques</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Résumé par chapitre -->
+        <div class="card" id="resume">
+            <div class="card-header" onclick="toggleCard(this)">
+                Résumé par Chapitre <i class="fas fa-chevron-up"></i>
+            </div>
+            <div class="card-body">
+                <h2 class="section-title"><i class="fas fa-user"></i> Introduction personnelle</h2>
+                <p>Tom Jondeau retrace son parcours académique et professionnel, marqué par une passion pour l'informatique et l'électronique. Il explique comment un projet pour Dassault Aviation a révélé ses compétences en gestion d'équipe et en médiation technique, le poussant à explorer le secteur du BTP. Son stage chez Etandex représente une reconversion audacieuse et une opportunité de combiner expertise technique et développement commercial.</p>
+
+                <h2 class="section-title"><i class="fas fa-building"></i> 1. Présentation de l'entreprise</h2>
+                <div class="highlight">
+                    <p><strong>Etandex</strong> : Entreprise indépendante de travaux spéciaux, fondée en 1973, avec 1 000 collaborateurs et un chiffre d'affaires de 200 M€ en 2024. Elle se distingue par sa spécialisation dans des domaines techniques complexes (étanchéité, génie civil, revêtements résine, etc.).</p>
+                </div>
+                <ul>
+                    <li><strong>Organisation nationale</strong> : Neuf agences en France, avec une forte autonomie locale et une innovation centralisée.</li>
+                    <li><strong>Agence de Toulouse</strong> : 40 employés, spécialisée dans le bâtiment en Occitanie, avec un focus sur les marchés publics (80% du CA).</li>
+                    <li><strong>Responsabilité sociétale</strong> : Engagement fort en gestion des déchets (notamment l'amiante) et sécurité.</li>
+                </ul>
+
+                <h2 class="section-title"><i class="fas fa-briefcase"></i> 2. Transition vers l'ingénierie commerciale</h2>
+                <ul>
+                    <li>Tom apprend que l'ingénieur étude et commercial chez Etandex est un rôle hybride, combinant prospection, accompagnement technique, et réponse aux appels d'offres.</li>
+                    <li>Ses objectifs : développer le marché privé (syndics de copropriété), relancer le marché des balcons, et explorer l'Isolation Thermique par l'Extérieur (ITE).</li>
+                    <li>Il privilégie l'apprentissage par la pratique, en automatisant des tâches (ex. : outil de suivi des appels d'offres via Google Sheets).</li>
+                </ul>
+
+                <h2 class="section-title"><i class="fas fa-chart-line"></i> 3. Conquête du marché privé</h2>
+                <ul>
+                    <li>Stratégie d'approche des syndics de copropriété, acteurs clés pour les travaux sur les parties communes.</li>
+                    <li>Accompagnement technique gratuit (diagnostics, rapports de visite) pour établir une relation de confiance.</li>
+                    <li>Résultats : Développement d'un réseau de syndics, réalisation de diagnostics, et signature de premiers chantiers.</li>
+                </ul>
+
+                <h2 class="section-title"><i class="fas fa-home"></i> 4. Développement de l'ITE</h2>
+                <ul>
+                    <li>L'ITE est un marché nouveau pour Etandex, avec une complexité technique élevée et une concurrence établie.</li>
+                    <li>Partenariats stratégiques avec des experts (ex. : Franck Porcel d'ITE Shop) pour combler le manque de connaissances internes.</li>
+                    <li>Premier projet : Étude d'un chantier d'envergure (25 000 m² de façades), validant la légitimité d'Etandex sur ce marché.</li>
+                </ul>
+
+                <h2 class="section-title"><i class="fas fa-hard-hat"></i> 5. Cas pratique : Résidence Victor Deque</h2>
+                <ul>
+                    <li>Diagnostic d'une résidence des années 1970 avec des défis majeurs (amiante, contraintes d'accessibilité).</li>
+                    <li>Proposition technique : Solution mixte (laine de roche et mousse phénolique) adaptée aux contraintes du projet.</li>
+                    <li>Mémoire technique et chiffrage : Rédaction d'un document de 60 pages et élaboration d'un devis de 650 000 € TTC.</li>
+                </ul>
+
+                <h2 class="section-title"><i class="fas fa-graduation-cap"></i> Bilan personnel et perspectives professionnelles</h2>
+                <ul>
+                    <li>Embauche proposée à Toulouse, validant son parcours et ses réalisations.</li>
+                    <li>Difficultés : Apprentissage de la priorisation et de la gestion de la charge de travail.</li>
+                    <li>Réalisations : 281 000 € de chiffre d'affaires généré, développement d'un réseau de partenaires.</li>
+                    <li>Projet professionnel : Devenir un ingénieur polyvalent, alliant expertise technique et efficacité commerciale.</li>
+                </ul>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">281k€</div>
+                        <div class="stat-label">Chiffre d'affaires généré</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">60</div>
+                        <div class="stat-label">Pages du mémoire technique</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">650k€</div>
+                        <div class="stat-label">Devis pour Victor Deque</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">25k m²</div>
+                        <div class="stat-label">Surface du projet ITE</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Évaluation globale -->
+        <div class="card" id="evaluation">
+            <div class="card-header" onclick="toggleCard(this)">
+                Évaluation Globale <i class="fas fa-chevron-up"></i>
+            </div>
+            <div class="card-body">
+                <p>Le rapport de stage de Tom Jondeau est évalué selon cinq critères clés :</p>
+
+                <div class="score-container">
+                    <div class="score-label">1. Pertinence du contenu technique et professionnel</div>
+                    <div class="score">5/5</div>
+                    <div class="score-description">Le rapport est exhaustif et bien structuré, couvrant tous les aspects du stage avec des détails techniques précis et illustrés.</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 100%"></div>
+                </div>
+
+                <div class="score-container">
+                    <div class="score-label">2. Qualité de la réflexion et de l'analyse</div>
+                    <div class="score">5/5</div>
+                    <div class="score-description">Tom analyse finement ses réussites et ses difficultés, tirant des enseignements concrets de chaque expérience.</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 100%"></div>
+                </div>
+
+                <div class="score-container">
+                    <div class="score-label">3. Style et clarté de la rédaction</div>
+                    <div class="score">4/5</div>
+                    <div class="score-description">Le style est fluide et accessible, mais certains passages techniques pourraient être synthétisés pour éviter les lourdeurs.</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 80%"></div>
+                </div>
+
+                <div class="score-container">
+                    <div class="score-label">4. Originalité et valeur ajoutée</div>
+                    <div class="score">5/5</div>
+                    <div class="score-description">L'approche innovante (automatisation, partenariats stratégiques) se distingue d'un rapport de stage classique.</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 100%"></div>
+                </div>
+
+                <div class="score-container">
+                    <div class="score-label">5. Perspectives professionnelles et cohérence</div>
+                    <div class="score">5/5</div>
+                    <div class="score-description">Le projet professionnel est clair et réaliste, aligné avec les compétences acquises et les besoins de l'entreprise.</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 100%"></div>
+                </div>
+
+                <div class="success-box">
+                    <p><strong>Note globale : 24/25</strong></p>
+                    <p>Ce rapport est exemplaire : il allie rigueur technique, réflexion stratégique, et narration personnelle. Il est inspirant pour tout étudiant ou professionnel en reconversion, et utile pour Etandex, qui y trouve une analyse fine de ses forces et opportunités.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Critiques constructives -->
+        <div class="card" id="critiques">
+            <div class="card-header" onclick="toggleCard(this)">
+                Critiques Constructives <i class="fas fa-chevron-up"></i>
+            </div>
+            <div class="card-body">
+                <p>Trois critiques pour améliorer la qualité et l'impact du rapport :</p>
+
+                <div class="critique-box">
+                    <h3><i class="fas fa-sync-alt"></i> 1. Manque de synthèse dans certains passages techniques</h3>
+                    <p><strong>Problème</strong> : Certains chapitres, notamment ceux sur l'ITE et le cas pratique de la Résidence Victor Deque, sont très détaillés et parfois trop techniques.</p>
+                    <p><strong>Suggestion</strong> :</p>
+                    <ul>
+                        <li>Hiérarchiser l'information en mettant en avant les enjeux clés et les solutions retenues.</li>
+                        <li>Utiliser des visuels (schémas, tableaux comparatifs) pour clarifier les choix techniques.</li>
+                    </ul>
+                </div>
+
+                <div class="critique-box">
+                    <h3><i class="fas fa-chart-bar"></i> 2. Absence de données chiffrées sur les résultats concrets</h3>
+                    <p><strong>Problème</strong> : Bien que Tom mentionne des réalisations commerciales, certaines sections manquent de métriques précises pour évaluer l'impact de ses actions.</p>
+                    <p><strong>Suggestion</strong> :</p>
+                    <ul>
+                        <li>Ajouter des indicateurs quantitatifs (ex. : "Sur 10 diagnostics gratuits, 3 ont abouti à des devis signés").</li>
+                        <li>Comparer les résultats avec les attentes initiales.</li>
+                    </ul>
+                </div>
+
+                <div class="critique-box">
+                    <h3><i class="fas fa-balance-scale"></i> 3. Peu de reculs critiques sur les échecs ou limites</h3>
+                    <p><strong>Problème</strong> : Le rapport met en avant les succès, mais minimise les échecs ou difficultés rencontrées.</p>
+                    <p><strong>Suggestion</strong> :</p>
+                    <ul>
+                        <li>Analyser les échecs de manière constructive : Quelles leçons en tirer ?</li>
+                        <li>Équilibrer le discours en montrant que les difficultés font partie de l'apprentissage.</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <p><strong>Pourquoi ces critiques sont importantes ?</strong></p>
+                    <p>Ces ajustements permettraient de :</p>
+                    <ul>
+                        <li>Rendre le rapport plus percutant pour un lecteur (ex. : jury, employeur).</li>
+                        <li>Démontrer une maturité professionnelle en assumant les échecs.</li>
+                        <li>Valoriser davantage les résultats avec des données tangibles.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                Chronologie du Stage <i class="fas fa-chevron-up"></i>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">Introduction</div>
+                            <p>Présentation du parcours et de la reconversion vers le BTP</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">Chapitre 1</div>
+                            <p>Découverte d'Etandex : entreprise spécialisée en travaux complexes</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">Chapitre 2</div>
+                            <p>Apprentissage du métier d'ingénieur étude et commercial</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">Chapitre 3</div>
+                            <p>Conquête du marché privé via les syndics de copropriété</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">Chapitre 4</div>
+                            <p>Développement de l'Isolation Thermique par l'Extérieur (ITE)</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">Chapitre 5</div>
+                            <p>Cas pratique : Résidence Victor Deque (diagnostic et proposition)</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">Conclusion</div>
+                            <p>Bilan et perspectives professionnelles avec proposition d'embauche</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 - Analyse du Rapport de Stage - Tom Jondeau</p>
+    </footer>
+
+    <script>
+        // Fonction pour faire défiler jusqu'au contenu
+        function scrollToContent() {
+            document.querySelector('.container').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+
+        // Fonction pour faire défiler jusqu'à une section spécifique
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+
+        // Fonction pour développer/réduire les sections
+        function toggleCard(header) {
+            const cardBody = header.nextElementSibling;
+            header.classList.toggle('collapsed');
+            cardBody.classList.toggle('collapsed');
+        }
+
+        // Animation au défilement
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animer les barres de progression
+            setTimeout(() => {
+                document.querySelectorAll('.progress-fill').forEach(el => {
+                    el.style.width = el.style.width;
+                });
+            }, 500);
+
+            // Observer pour l'animation au défilement
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            // Observer les cartes
+            document.querySelectorAll('.card').forEach(card => {
+                observer.observe(card);
+            });
+
+            // Observer les éléments de la timeline
+            document.querySelectorAll('.timeline-item').forEach((item, index) => {
+                setTimeout(() => {
+                    observer.observe(item);
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>
